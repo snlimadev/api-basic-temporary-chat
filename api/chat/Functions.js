@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 
 //#region Function to handle chat room creation and user joining / Função para lidar com a criação de salas de chat e entrada de usuários
 function createOrJoinRoom(socket, rooms, parsedMessage) {
-  const roomCode = parsedMessage.roomCode.trim();
+  const roomCode = parsedMessage.roomCode.trim().toUpperCase();
   const user = parsedMessage.user.trim();
 
   //#region Handle room creation / Lida com a criação de salas
@@ -55,7 +55,7 @@ function createOrJoinRoom(socket, rooms, parsedMessage) {
 
   // Check if the username is already in use in the room / Verifica se o nome de usuário já está sendo usado na sala
   for (const client of rooms[roomCode].clients) {
-    if (client !== socket && client.user === user) {
+    if (client !== socket && client.user.toUpperCase() === user.toUpperCase()) {
       socket.send(JSON.stringify({
         error: 'Username is already in use in this room.'
       }));
