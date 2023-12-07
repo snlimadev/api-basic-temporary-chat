@@ -2,31 +2,35 @@ const WebSocket = require('ws');
 
 //#region Function to handle chat room creation and user joining / Função para lidar com a criação de salas de chat e entrada de usuários
 function createOrJoinRoom(socket, rooms, parsedMessage) {
-  const roomCode = parsedMessage.roomCode.trim().toUpperCase();
-  const user = parsedMessage.user.trim();
+  const roomCode = (parsedMessage.roomCode) ? parsedMessage.roomCode.trim().toUpperCase() : '';
+  const user = (parsedMessage.user) ? parsedMessage.user.trim() : '';
 
   //#region Handle room creation / Lida com a criação de salas
   if (rooms[roomCode]) {
     //#region Prevent duplicate room codes / Impede duplicidade de códigos de sala
     if (parsedMessage.action === 'create') {
-      socket.send(JSON.stringify({
-        error: 'Room already exists. Please try using a different room code.'
-      }));
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          error: 'Room already exists. Please try using a different room code.'
+        }));
+      }
 
       return;
     }
     //#endregion
   } else {
     //#region Create a new room or prevent user joining an inexistent one / Cria uma nova sala ou impede que o usuário entre em uma que não existe
-    if (parsedMessage.action === 'create' && roomCode && user && (Number(parsedMessage.maxClients) >= 2 && Number(parsedMessage.maxClients) <= 16)) {
+    if (parsedMessage.action === 'create' && roomCode && user && (parseInt(parsedMessage.maxClients) >= 2 && parseInt(parsedMessage.maxClients) <= 16)) {
       rooms[roomCode] = {
         clients: new Set(),
-        maxClients: Number(parsedMessage.maxClients)
+        maxClients: parseInt(parsedMessage.maxClients)
       };
     } else if (parsedMessage.action === 'join') {
-      socket.send(JSON.stringify({
-        error: 'Room does not exist.'
-      }));
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          error: 'Room does not exist.'
+        }));
+      }
 
       return;
     }
@@ -37,18 +41,22 @@ function createOrJoinRoom(socket, rooms, parsedMessage) {
   //#region Validations / Validações
   // Check if the room still doesn't exist after a create attempt / Verifica se a sala ainda não existe após tentar criá-la
   if (!rooms[roomCode]) {
-    socket.send(JSON.stringify({
-      error: 'Failed to create room. Required to inform room code and username, and room size must be between 2 and 16.'
-    }));
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        error: 'Failed to create room. Required to inform room code and username, and room size must be between 2 and 16.'
+      }));
+    }
 
     return;
   }
 
   // Check if the room is full / Verifica se a sala está lotada
   if (rooms[roomCode].clients.size >= rooms[roomCode].maxClients) {
-    socket.send(JSON.stringify({
-      error: 'Room is full.'
-    }));
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        error: 'Room is full.'
+      }));
+    }
 
     return;
   }
@@ -56,9 +64,11 @@ function createOrJoinRoom(socket, rooms, parsedMessage) {
   // Check if the username is already in use in the room / Verifica se o nome de usuário já está sendo usado na sala
   for (const client of rooms[roomCode].clients) {
     if (client !== socket && client.user.toUpperCase() === user.toUpperCase()) {
-      socket.send(JSON.stringify({
-        error: 'Username is already in use in this room.'
-      }));
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          error: 'Username is already in use in this room.'
+        }));
+      }
 
       return;
     }
@@ -69,9 +79,11 @@ function createOrJoinRoom(socket, rooms, parsedMessage) {
     socket.roomCode = roomCode;
     socket.user = user;
   } else {
-    socket.send(JSON.stringify({
-      error: 'Required to inform room code and username.'
-    }));
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        error: 'Required to inform room code and username.'
+      }));
+    }
 
     return;
   }
@@ -93,7 +105,7 @@ function createOrJoinRoom(socket, rooms, parsedMessage) {
 
 //#region Function to handle message sending within a room / Função para lidar com o envio de mensagens dentro de uma sala
 function sendMessage(socket, rooms, parsedMessage) {
-  const text = parsedMessage.text.trim();
+  const text = (parsedMessage.text) ? parsedMessage.text.trim() : '';
 
   if (text) {
     rooms[socket.roomCode].clients.forEach((client) => {

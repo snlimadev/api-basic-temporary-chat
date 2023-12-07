@@ -18,13 +18,17 @@ server.on('connection', (socket) => {
         chatFunctions.sendMessage(socket, rooms, parsedMessage);
       }
     } catch (error) {
-      socket.send(JSON.stringify({
-        error: 'Invalid JSON message received.'
-      }));
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          error: 'Invalid JSON message received.'
+        }));
+      }
     }
     //#endregion
 
-    socket.removeAllListeners('close');
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.removeAllListeners('close');
+    }
 
     //#region Handle client disconnection
     // Lida com desconexões do cliente
