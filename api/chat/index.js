@@ -3,7 +3,7 @@ const server = new WebSocket.Server({ port: 8080 });
 
 const rooms = {};
 
-const chatFunctions = require('./Functions');
+const chatFunctions = require('./services');
 
 server.on('connection', (socket) => {
   socket.on('message', (message) => {

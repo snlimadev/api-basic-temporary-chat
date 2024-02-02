@@ -2,8 +2,8 @@ const WebSocket = require('ws');
 
 //#region Function to handle chat room creation and user joining / Função para lidar com a criação de salas de chat e entrada de usuários
 function createOrJoinRoom(socket, rooms, parsedMessage) {
-  const roomCode = (parsedMessage.roomCode) ? parsedMessage.roomCode.trim().toUpperCase() : '';
-  const user = (parsedMessage.user) ? parsedMessage.user.trim() : '';
+  const roomCode = (parsedMessage.roomCode) ? parsedMessage.roomCode.toString().trim().toUpperCase() : '';
+  const user = (parsedMessage.user) ? parsedMessage.user.toString().trim() : '';
 
   //#region Handle room creation / Lida com a criação de salas
   if (rooms[roomCode]) {
@@ -103,29 +103,4 @@ function createOrJoinRoom(socket, rooms, parsedMessage) {
 }
 //#endregion
 
-//#region Function to handle message sending within a room / Função para lidar com o envio de mensagens dentro de uma sala
-function sendMessage(socket, rooms, parsedMessage) {
-  const text = (parsedMessage.text) ? parsedMessage.text.trim() : '';
-
-  if (text) {
-    rooms[socket.roomCode].clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        // Format time / Formata a hora
-        const date = new Date();
-        const timeZone = 'America/Sao_Paulo';
-        const options = { timeZone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-        const formattedTime = new Intl.DateTimeFormat('pt-BR', options).format(date);
-
-        // Send the message to all users in the room / Envia a mensagem a todos os usuários da sala
-        client.send(JSON.stringify({
-          sender: socket.user,
-          time: formattedTime,
-          message: text.replace(/\n/g, '\\n')
-        }));
-      }
-    });
-  }
-}
-//#endregion
-
-module.exports = { createOrJoinRoom, sendMessage };
+module.exports = { createOrJoinRoom };
