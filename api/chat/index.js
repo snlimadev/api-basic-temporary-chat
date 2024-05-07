@@ -25,30 +25,26 @@ server.on('connection', (socket) => {
       }
     }
     //#endregion
+  });
 
-    if (socket.readyState === WebSocket.OPEN) {
-      socket.removeAllListeners('close');
-    }
-
+  socket.on('close', () => {
     //#region Handle client disconnection
     // Lida com desconexões do cliente
-    socket.on('close', () => {
-      if (rooms[socket.roomCode]) {
-        rooms[socket.roomCode].clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({
-              event: `${socket.user} left the room`
-            }));
-          }
-        });
-
-        rooms[socket.roomCode].clients.delete(socket);
-
-        if (rooms[socket.roomCode].clients.size === 0) {
-          delete rooms[socket.roomCode];
+    if (rooms[socket.roomCode]) {
+      rooms[socket.roomCode].clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({
+            event: `${socket.user} left the room`
+          }));
         }
+      });
+
+      rooms[socket.roomCode].clients.delete(socket);
+
+      if (rooms[socket.roomCode].clients.size === 0) {
+        delete rooms[socket.roomCode];
       }
-    });
+    }
     //#endregion
   });
 });
