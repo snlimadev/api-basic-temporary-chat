@@ -12,12 +12,24 @@ server.on('connection', (socket) => {
     try {
       const parsedMessage = JSON.parse(message);
 
+      if (!parsedMessage.action && parsedMessage.text === undefined) {
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(JSON.stringify({
+            error: 'No valid parameters received.'
+          }));
+        }
+
+        return;
+      }
+
       if (parsedMessage.action === 'create' || parsedMessage.action === 'join') {
         chatFunctions.createOrJoinRoom(socket, rooms, parsedMessage);
       } else {
         chatFunctions.sendMessage(socket, rooms, parsedMessage);
       }
     } catch (error) {
+      console.error('Error processing message: ', error);
+
       if (socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({
           error: 'Invalid JSON message received.'
@@ -47,6 +59,8 @@ server.on('connection', (socket) => {
     }
     //#endregion
   });
+
+  socket.on('error', console.error);
 });
 
 server.on('listening', () => {
