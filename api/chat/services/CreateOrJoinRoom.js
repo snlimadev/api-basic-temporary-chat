@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 
 //#region Function to handle chat room creation and user joining / Função para lidar com a criação de salas de chat e entrada de usuários
 function createOrJoinRoom(socket, rooms, parsedMessage) {
-  const roomCode = (parsedMessage.roomCode) ? parsedMessage.roomCode.toString().trim().toUpperCase() : '';
+  const roomCode = (parsedMessage.roomCode !== undefined && parsedMessage.roomCode !== null) ? parsedMessage.roomCode.toString().trim().toUpperCase() : '';
   const user = (parsedMessage.user) ? parsedMessage.user.toString().trim() : '';
 
   //#region Handle room creation / Lida com a criação de salas

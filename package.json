@@ -1,10 +1,10 @@
 {
   "name": "api-basic-temporary-chat",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A Node.js WebSocket server for a temporary chat",
-  "main": "api/chat/index.js",
+  "main": "api/chat/server.js",
   "scripts": {
-    "start": "node api/chat/index.js"
+    "start": "node api/chat/server.js"
   },
   "dependencies": {
     "ws": "^8.14.2"

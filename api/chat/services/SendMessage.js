@@ -4,6 +4,16 @@ const WebSocket = require('ws');
 function sendMessage(socket, rooms, parsedMessage) {
   const text = (parsedMessage.text) ? parsedMessage.text.toString().trim() : '';
 
+  if (!rooms[socket.roomCode]) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        error: 'You must enter a room to send a message.'
+      }));
+    }
+
+    return;
+  }
+
   if (text) {
     rooms[socket.roomCode].clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
