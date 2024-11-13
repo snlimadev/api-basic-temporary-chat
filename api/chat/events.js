@@ -19,7 +19,7 @@ function handleMessage(socket, rooms, message) {
         } else {
           if (socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify({
-              error: 'No valid parameters received.'
+              error: 'Invalid request.'
             }));
           }
         }
@@ -42,15 +42,19 @@ function handleClose(socket, rooms) {
 }
 
 function handleConnection(socket, rooms) {
-  socket.on('message', (message) => {
-    handleMessage(socket, rooms, message);
-  });
+  try {
+    socket.on('message', (message) => {
+      handleMessage(socket, rooms, message);
+    });
 
-  socket.on('close', () => {
-    handleClose(socket, rooms);
-  });
+    socket.on('close', () => {
+      handleClose(socket, rooms);
+    });
 
-  socket.on('error', console.error);
+    socket.on('error', console.error);
+  } catch (error) {
+    console.error('Error handling connection event: ', error);
+  }
 }
 
 module.exports = { handleConnection };
