@@ -38,20 +38,24 @@ function handleMessage(socket, rooms, message) {
 }
 
 function handleClose(socket, rooms) {
-  try {
-    chatServices.removeFromRoom(socket, rooms);
-  } catch (error) {
-    console.error('Error handling close event: ', error);
-  }
+  chatServices.removeFromRoom(socket, rooms);
 }
 
 function handleConnection(socket, rooms) {
   socket.on('message', (message) => {
-    handleMessage(socket, rooms, message);
+    try {
+      handleMessage(socket, rooms, message);
+    } catch (error) {
+      console.error('Error handling message event: ', error);
+    }
   });
 
   socket.on('close', () => {
-    handleClose(socket, rooms);
+    try {
+      handleClose(socket, rooms);
+    } catch (error) {
+      console.error('Error handling close event: ', error);
+    }
   });
 
   socket.on('error', console.error);
