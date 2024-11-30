@@ -5,6 +5,19 @@ function createOrJoinRoom(socket, rooms, parsedMessage) {
   const roomCode = (parsedMessage.roomCode !== undefined && parsedMessage.roomCode !== null) ? parsedMessage.roomCode.toString().trim().toUpperCase() : '';
   const user = (parsedMessage.user) ? parsedMessage.user.toString().trim() : '';
 
+  //#region Check if the client is already in a room
+  // Verifica se o cliente já está em uma sala
+  if (socket.roomCode) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({
+        error: 'You are already in a room.'
+      }));
+    }
+
+    return;
+  }
+  //#endregion
+
   //#region Handle room creation / Lida com a criação de salas
   if (rooms[roomCode]) {
     //#region Prevent duplicate room codes / Impede duplicidade de códigos de sala
