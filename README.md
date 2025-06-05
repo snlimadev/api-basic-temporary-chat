@@ -54,7 +54,7 @@ The server enforces unique usernames within rooms and ensures a smooth chat expe
 
 <h4>WebSocket Connection URL</h4>
 
-wss://api-basic-temporary-chat.glitch.me
+wss://api-basic-temporary-chat.onrender.com
 
 <h2>Português</h2>
 
@@ -112,4 +112,4 @@ O servidor garante nomes de usuário exclusivos dentro das salas e oferece uma e
 
 <h4>URL de Conexão WebSocket</h4>
 
-wss://api-basic-temporary-chat.glitch.me
+wss://api-basic-temporary-chat.onrender.com
