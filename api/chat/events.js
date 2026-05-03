@@ -1,9 +1,17 @@
 const WebSocket = require('ws');
 const chatServices = require('./services');
 
+/**
+ * Handles the WebSocket `message` event by calling services for chat room
+ * creation, user joining, and message sending.
+ * 
+ * @param {object} socket - The WebSocket connection object.
+ * @param {object} rooms - An object containing all active rooms on the server.
+ * @param {string} message - The incoming message as a JSON string.
+ * 
+ * @returns {void} This function does not return any value.
+ */
 function handleMessage(socket, rooms, message) {
-  //#region Handle chat room creation, user joining and message sending
-  // Lida com a criação de salas de chat, entrada de usuários e envio de mensagens
   try {
     const parsedMessage = JSON.parse(message);
 
@@ -34,13 +42,30 @@ function handleMessage(socket, rooms, message) {
       }));
     }
   }
-  //#endregion
 }
 
+/**
+ * Handles the WebSocket `close` event by calling the service for removing the
+ * user from their room.
+ * 
+ * @param {object} socket - The WebSocket connection object.
+ * @param {object} rooms - An object containing all active rooms on the server.
+ * 
+ * @returns {void} This function does not return any value.
+ */
 function handleClose(socket, rooms) {
   chatServices.removeFromRoom(socket, rooms);
 }
 
+/**
+ * Handles the WebSocket `connection` event by setting up event listeners for
+ * the `message`, `close`, and `error` events.
+ * 
+ * @param {object} socket - The WebSocket connection object.
+ * @param {object} rooms - An object containing all active rooms on the server.
+ * 
+ * @returns {void} This function does not return any value.
+ */
 function handleConnection(socket, rooms) {
   socket.on('message', (message) => {
     try {

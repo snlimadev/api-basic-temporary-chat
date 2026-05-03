@@ -1,7 +1,13 @@
 const WebSocket = require('ws');
 
-//#region Function to remove the user from the room
-// Função para remover o usuário da sala
+/**
+ * Removes the user from their room, then deletes the room if it becomes empty.
+ * 
+ * @param {object} socket - The WebSocket connection object.
+ * @param {object} rooms - An object containing all active rooms on the server.
+ * 
+ * @returns {void} This function does not return any value.
+ */
 function removeFromRoom(socket, rooms) {
   if (rooms[socket.roomCode]) {
     rooms[socket.roomCode].clients.forEach((client) => {
@@ -14,13 +20,10 @@ function removeFromRoom(socket, rooms) {
 
     rooms[socket.roomCode].clients.delete(socket);
 
-    // Delete the room if it's empty
-    // Exclui a sala se estiver vazia
     if (rooms[socket.roomCode].clients.size === 0) {
       delete rooms[socket.roomCode];
     }
   }
 }
-//#endregion
 
 module.exports = { removeFromRoom };
