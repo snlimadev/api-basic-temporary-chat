@@ -59,7 +59,7 @@ function handleClose(socket, rooms) {
 
 /**
  * Handles the WebSocket `connection` event by setting up event listeners for
- * the `message`, `close`, and `error` events.
+ * the `pong`, `message`, `close`, and `error` events.
  * 
  * @param {object} socket - The WebSocket connection object.
  * @param {object} rooms - An object containing all active rooms on the server.
@@ -67,6 +67,12 @@ function handleClose(socket, rooms) {
  * @returns {void} This function does not return any value.
  */
 function handleConnection(socket, rooms) {
+  socket.isAlive = true;
+
+  socket.on('pong', () => {
+    socket.isAlive = true;
+  });
+
   socket.on('message', (message) => {
     try {
       handleMessage(socket, rooms, message);
@@ -86,4 +92,29 @@ function handleConnection(socket, rooms) {
   socket.on('error', console.error);
 }
 
-module.exports = { handleConnection };
+/**
+ * Pings the client if active; otherwise, terminates their connection.
+ * 
+ * @param {object} socket - The WebSocket connection object.
+ * 
+ * @returns {void} This function does not return any value.
+ */
+function handlePing(socket) {
+  if (socket.readyState !== WebSocket.OPEN || !socket.isAlive) {
+    socket.terminate();
+    return;
+  }
+
+  socket.isAlive = false;
+
+  try {
+    socket.ping();
+  } catch {
+    socket.terminate();
+  }
+}
+
+module.exports = {
+  handleConnection,
+  handlePing
+};

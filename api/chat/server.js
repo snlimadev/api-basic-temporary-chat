@@ -1,12 +1,22 @@
 const WebSocket = require('ws');
 const server = new WebSocket.Server({ port: 8080 });
 
-const { handleConnection } = require('./events');
+const { handleConnection, handlePing } = require('./events');
 
 const rooms = {};
 
 server.on('connection', (socket) => {
   handleConnection(socket, rooms);
+});
+
+const interval = setInterval(() => {
+  server.clients.forEach((socket) => {
+    handlePing(socket);
+  });
+}, 30000);
+
+server.on('close', () => {
+  clearInterval(interval);
 });
 
 server.on('listening', () => {
